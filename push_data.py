@@ -42,7 +42,6 @@ class NetworkDataExtract():
             self.database = database
             self.collection = collection
             self.records = records
-
             self.mongo_client = pymongo.MongoClient(MONGO_DB_URL)
             self.database = self.mongo_client[self.database]
             self.collection = self.database[self.collection]
@@ -53,7 +52,7 @@ class NetworkDataExtract():
             raise NetworkSecurityException(e,sys)
         
 if __name__ == "__main__":
-    FILE_PATH = "Network_Data\phisingData.csv"
+    FILE_PATH = r"Network_Data\phisingData.csv"
     DATABASE = "NetworkSecurityDB"
     Collection = "PhisingDataCollection"
     networkobj = NetworkDataExtract()
