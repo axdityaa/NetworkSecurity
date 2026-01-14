@@ -85,7 +85,27 @@ class DataValidation:
         except Exception as e:
             raise NetworkSecurityException(e, sys)
 
-        
+    ## Function to detect is numerical column exist in data
+    def is_numerical_column_exist(self, dataframe: pd.DataFrame) -> bool:
+        try:
+            numerical_columns = self._schema_config["numerical_columns"]
+
+            for column in numerical_columns:
+                # Check column existence
+                if column not in dataframe.columns:
+                    return False
+
+                # Check numerical dtype
+                if not np.issubdtype(dataframe[column].dtype, np.number):
+                    return False
+
+            return True
+
+        except Exception as e:
+            raise NetworkSecurityException(e, sys)
+
+
+
     def intitiate_data_validation(self)->DataValidationArtifact:
         try:
             train_file_path = self.data_ingestion_artifact.train_file_path
@@ -102,20 +122,28 @@ class DataValidation:
             if not status:
                 error_message = f"Test dataframe does not contain all columns"
 
+            # validate numerical columns exist
+            status = self.is_numerical_column_exist(train_dataframe)
+            if not status:
+                error_message = f"Train dataframe does not contain numerical columns"   
+            status = self.is_numerical_column_exist(test_dataframe)
+            if not status:      
+                error_message = f"Test dataframe does not contain numerical columns"
+
             # lets check data drift
             status = self.detect_data_drift(base_df=train_dataframe,current_df=test_dataframe)
             dir_path = os.path.dirname(self.data_validation_config.valid_train_file_path)
             os.makedirs(dir_path,exist_ok=True)
 
-            train_dataframe.to_csv(
-                self.data_validation_config.valid_train_file_path, index=False, header=True
+            if status==True:
+                train_dataframe.to_csv(
+                    self.data_validation_config.valid_train_file_path, index=False, header=True
 
-            )
-
-            test_dataframe.to_csv(
-                self.data_validation_config.valid_test_file_path, index=False, header=True
-            )
-            
+                )
+                test_dataframe.to_csv(
+                    self.data_validation_config.valid_test_file_path, index=False, header=True
+                )
+                
             data_validation_artifact = DataValidationArtifact(
                 validation_status=status,
                 valid_train_file_path=self.data_ingestion_artifact.train_file_path,
