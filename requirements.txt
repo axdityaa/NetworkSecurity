@@ -9,5 +9,8 @@ dill
 pyaml
 python-dotenv>=1.0.0
 mlflow
+dagshub
+fastapi
+uvicorn
 
 # -e .

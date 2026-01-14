@@ -106,7 +106,7 @@ class DataValidation:
 
 
 
-    def intitiate_data_validation(self)->DataValidationArtifact:
+    def initiate_data_validation(self)->DataValidationArtifact:
         try:
             train_file_path = self.data_ingestion_artifact.train_file_path
             test_file_path = self.data_ingestion_artifact.test_file_path

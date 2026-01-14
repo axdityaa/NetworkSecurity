@@ -27,6 +27,9 @@ from sklearn.ensemble import (
 import mlflow
 from mlflow import sklearn as mlflow_sklearn
 
+import dagshub
+dagshub.init(repo_owner='axdityaa', repo_name='NetworkSecurity', mlflow=True)
+
 
 class ModelTrainer:
     def __init__(self,model_trainer_config:ModelTrainerConfig,data_transformation_artifact:DataTransformationArtifact):
@@ -97,6 +100,10 @@ class ModelTrainer:
 
         classification_train_metric = get_classification_score(y_train,y_train_pred)
 
+        # Log the best model's name and parameters
+        logging.info(f"Best Model: {best_model_name}")
+        logging.info(f"Best Model Parameters: {best_model.get_params()}")  # Log model parameters
+
         # Track the experiments with ML flow
 
         self.track_mlflow(best_model,classification_train_metric)
@@ -110,6 +117,8 @@ class ModelTrainer:
 
         Network_Model=NetworkModel(preprocessor=preprocessor,model=best_model)
         save_object(self.model_trainer_config.trained_model_file_path,obj=NetworkModel)
+
+        save_object("final_model/model.pkl",best_model)
 
         ## Model Trainer Artifact
         model_trainer_artifact=ModelTrainerArtifact(trained_model_file_path=self.model_trainer_config.trained_model_file_path,
